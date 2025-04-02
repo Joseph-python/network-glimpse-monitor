@@ -1,6 +1,7 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Device, StatusLog, PerformanceData } from '@/types';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
 // Sample data for initial rendering

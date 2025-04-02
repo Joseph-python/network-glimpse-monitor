@@ -69,7 +69,16 @@ const DeviceForm: React.FC = () => {
   });
 
   const onSubmit = (data: FormValues) => {
-    addDevice(data);
+    // Make sure to provide non-optional values as required by the Device type
+    addDevice({
+      name: data.name,
+      hostname: data.hostname,
+      ipAddress: data.ipAddress,
+      type: data.type,
+      location: data.location || undefined,
+      notes: data.notes || undefined
+    });
+    
     form.reset();
     setOpen(false);
   };
