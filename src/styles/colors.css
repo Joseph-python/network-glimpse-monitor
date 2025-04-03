@@ -1,0 +1,42 @@
+
+:root {
+  --network-online: rgb(16, 185, 129);
+  --network-offline: rgb(239, 68, 68);
+  --network-warning: rgb(245, 158, 11);
+}
+
+.text-network-online {
+  color: var(--network-online);
+}
+
+.text-network-offline {
+  color: var(--network-offline);
+}
+
+.text-network-warning {
+  color: var(--network-warning);
+}
+
+.bg-network-online {
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.bg-network-offline {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.bg-network-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.border-network-online {
+  border-color: var(--network-online);
+}
+
+.border-network-offline {
+  border-color: var(--network-offline);
+}
+
+.border-network-warning {
+  border-color: var(--network-warning);
+}
