@@ -12,19 +12,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Server, HardDrive, BarChart2, Wifi, MonitorCheck, Home, LogOut } from 'lucide-react';
+import { Server, HardDrive, BarChart2, Wifi, MonitorCheck, Home } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -32,7 +21,6 @@ interface DashboardLayoutProps {
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const location = useLocation();
-  const { currentUser, signOut } = useAuth();
   
   return (
     <SidebarProvider>
@@ -44,28 +32,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               <SidebarTrigger />
               <h1 className="text-2xl font-semibold ml-10">Network Glimpse Monitor</h1>
             </div>
-            {currentUser && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || 'User'} />
-                      <AvatarFallback>{currentUser.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuLabel>{currentUser.displayName || 'User'}</DropdownMenuLabel>
-                  <DropdownMenuLabel className="text-xs font-normal">{currentUser.email}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
           </header>
           <main className="flex-1 p-4 overflow-auto">
             {children}
