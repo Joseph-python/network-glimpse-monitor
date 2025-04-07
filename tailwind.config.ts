@@ -64,9 +64,9 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
                 network: {
-                    'online': '#10b981',
-                    'offline': '#ef4444',
-                    'warning': '#f59e0b'
+                    'online': '#38bdf8',
+                    'offline': '#f472b6',
+                    'warning': '#facc15'
                 }
 			},
 			borderRadius: {

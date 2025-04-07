@@ -1,8 +1,8 @@
 
 :root {
-  --network-online: rgb(16, 185, 129);
-  --network-offline: rgb(239, 68, 68);
-  --network-warning: rgb(245, 158, 11);
+  --network-online: rgb(56, 189, 248);
+  --network-offline: rgb(244, 114, 182);
+  --network-warning: rgb(250, 204, 21);
 }
 
 .text-network-online {
@@ -18,15 +18,15 @@
 }
 
 .bg-network-online {
-  background-color: rgba(16, 185, 129, 0.1);
+  background-color: rgba(56, 189, 248, 0.1);
 }
 
 .bg-network-offline {
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: rgba(244, 114, 182, 0.1);
 }
 
 .bg-network-warning {
-  background-color: rgba(245, 158, 11, 0.1);
+  background-color: rgba(250, 204, 21, 0.1);
 }
 
 .border-network-online {
