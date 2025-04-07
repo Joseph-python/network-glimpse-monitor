@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, ExternalLink, RefreshCw, Trash } from 'lucide-react';
 import NotFound from '@/pages/NotFound';
 import DevicePerformanceChart from './DevicePerformanceChart';
+import NetworkTraffic from './NetworkTraffic';
 import { 
   Dialog,
   DialogContent,
@@ -156,6 +157,10 @@ const DeviceDetail: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {device.networkInterfaces && device.networkInterfaces.length > 0 && (
+        <NetworkTraffic networkInterfaces={device.networkInterfaces} />
+      )}
 
       <Card>
         <CardHeader>

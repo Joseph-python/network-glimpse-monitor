@@ -16,6 +16,12 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        "network-online":
+          "border-transparent bg-network-online text-white hover:bg-network-online/80",
+        "network-offline":
+          "border-transparent bg-network-offline text-white hover:bg-network-offline/80",
+        "network-warning":
+          "border-transparent bg-network-warning text-black hover:bg-network-warning/80",
       },
     },
     defaultVariants: {

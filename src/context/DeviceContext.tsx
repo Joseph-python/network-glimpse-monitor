@@ -1,8 +1,84 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Device, StatusLog, PerformanceData } from '@/types';
+import { Device, StatusLog, PerformanceData, NetworkInterface, ProtocolType } from '@/types';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
+
+// Generate sample network interfaces for devices
+const generateNetworkInterfaces = (deviceType: string): NetworkInterface[] => {
+  const interfaces: NetworkInterface[] = [];
+  
+  // Number of interfaces based on device type
+  const interfaceCount = deviceType === 'router' ? 4 : 
+                          deviceType === 'switch' ? 8 : 
+                          deviceType === 'server' ? 2 : 1;
+  
+  // Create interfaces
+  for (let i = 1; i <= interfaceCount; i++) {
+    // Generate random MAC address
+    const mac = Array(6).fill(0).map(() => 
+      Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
+    ).join(':');
+    
+    // Random traffic stats based on device type
+    const multiplier = deviceType === 'router' ? 1024 * 1024 : // 1MB base for routers
+                       deviceType === 'switch' ? 512 * 1024 : // 512KB base for switches
+                       128 * 1024; // 128KB base for servers
+    
+    const rxBytes = Math.floor(Math.random() * multiplier * 100);
+    const txBytes = Math.floor(Math.random() * multiplier * 80);
+    const rxRate = Math.floor(Math.random() * multiplier / 8);
+    const txRate = Math.floor(Math.random() * multiplier / 10);
+    
+    // Generate protocol distribution
+    const protocols: { protocol: ProtocolType; percentage: number }[] = [];
+    const protocolTypes: ProtocolType[] = ['TCP', 'UDP', 'ICMP', 'HTTP', 'HTTPS', 'DNS', 'Other'];
+    
+    let remainingPercentage = 100;
+    for (let j = 0; j < protocolTypes.length - 1; j++) {
+      const percentage = j === 0 ? Math.floor(Math.random() * 40) + 30 : // TCP is usually dominant
+                        Math.floor(Math.random() * Math.min(remainingPercentage, 20));
+      
+      if (percentage > 0) {
+        protocols.push({
+          protocol: protocolTypes[j],
+          percentage
+        });
+        remainingPercentage -= percentage;
+      }
+    }
+    
+    // Add remaining percentage to "Other"
+    if (remainingPercentage > 0) {
+      protocols.push({
+        protocol: 'Other',
+        percentage: remainingPercentage
+      });
+    }
+    
+    // Interface name based on device type
+    const name = deviceType === 'router' ? `GigabitEthernet${i}/0` :
+                 deviceType === 'switch' ? `FastEthernet${i}/0` :
+                 `eth${i-1}`;
+    
+    interfaces.push({
+      name,
+      macAddress: mac,
+      speed: deviceType === 'router' ? '1 Gbps' : 
+             deviceType === 'switch' ? '100 Mbps' : 
+             '10 Gbps',
+      trafficStats: {
+        currentRxBytes: rxBytes,
+        currentTxBytes: txBytes,
+        rxBytesPerSecond: rxRate,
+        txBytesPerSecond: txRate
+      },
+      protocols
+    });
+  }
+  
+  return interfaces;
+};
 
 // Sample data for initial rendering
 const sampleDevices: Device[] = [
@@ -17,7 +93,8 @@ const sampleDevices: Device[] = [
     memoryUsage: 45,
     location: 'Main Office',
     notes: 'Primary router for the main network',
-    lastChecked: new Date().toISOString()
+    lastChecked: new Date().toISOString(),
+    networkInterfaces: generateNetworkInterfaces('router')
   },
   {
     id: '2',
@@ -30,7 +107,8 @@ const sampleDevices: Device[] = [
     memoryUsage: 22,
     location: 'Main Office',
     notes: 'Edge switch connecting to floor 1',
-    lastChecked: new Date().toISOString()
+    lastChecked: new Date().toISOString(),
+    networkInterfaces: generateNetworkInterfaces('switch')
   },
   {
     id: '3',
@@ -43,7 +121,8 @@ const sampleDevices: Device[] = [
     memoryUsage: 85,
     location: 'Server Room',
     notes: 'Hosts critical applications',
-    lastChecked: new Date().toISOString()
+    lastChecked: new Date().toISOString(),
+    networkInterfaces: generateNetworkInterfaces('server')
   },
   {
     id: '4',
@@ -56,7 +135,8 @@ const sampleDevices: Device[] = [
     memoryUsage: 0,
     location: 'Server Room',
     notes: 'Scheduled maintenance',
-    lastChecked: new Date().toISOString()
+    lastChecked: new Date().toISOString(),
+    networkInterfaces: generateNetworkInterfaces('server')
   }
 ];
 
@@ -110,7 +190,7 @@ interface DeviceContextType {
   devices: Device[];
   logs: StatusLog[];
   performanceHistory: PerformanceHistory;
-  addDevice: (device: Omit<Device, 'id' | 'status' | 'cpuUsage' | 'memoryUsage' | 'lastChecked'>) => void;
+  addDevice: (device: Omit<Device, 'id' | 'status' | 'cpuUsage' | 'memoryUsage' | 'lastChecked' | 'networkInterfaces'>) => void;
   updateDevice: (device: Device) => void;
   deleteDevice: (id: string) => void;
   getDeviceById: (id: string) => Device | undefined;
@@ -134,7 +214,7 @@ export const DeviceProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   // Add a new device
-  const addDevice = (newDevice: Omit<Device, 'id' | 'status' | 'cpuUsage' | 'memoryUsage' | 'lastChecked'>) => {
+  const addDevice = (newDevice: Omit<Device, 'id' | 'status' | 'cpuUsage' | 'memoryUsage' | 'lastChecked' | 'networkInterfaces'>) => {
     const id = uuidv4();
     const now = new Date().toISOString();
     
@@ -144,7 +224,8 @@ export const DeviceProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       status: 'offline', // Initial status until first check
       cpuUsage: 0,
       memoryUsage: 0,
-      lastChecked: now
+      lastChecked: now,
+      networkInterfaces: generateNetworkInterfaces(newDevice.type)
     };
     
     setDevices(prev => [...prev, device]);
@@ -210,6 +291,50 @@ export const DeviceProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return performanceHistory[id] || [];
   };
 
+  // Update network traffic data for a device
+  const updateNetworkTraffic = (device: Device) => {
+    if (!device.networkInterfaces) return;
+    
+    device.networkInterfaces.forEach(nic => {
+      // Update traffic stats with randomized data
+      const rxIncrease = Math.floor(Math.random() * nic.trafficStats.rxBytesPerSecond * 1.5);
+      const txIncrease = Math.floor(Math.random() * nic.trafficStats.txBytesPerSecond * 1.5);
+      
+      nic.trafficStats.currentRxBytes += rxIncrease;
+      nic.trafficStats.currentTxBytes += txIncrease;
+      
+      // Fluctuate rates slightly
+      nic.trafficStats.rxBytesPerSecond = Math.max(100, 
+        Math.floor(nic.trafficStats.rxBytesPerSecond * (0.8 + Math.random() * 0.4))
+      );
+      nic.trafficStats.txBytesPerSecond = Math.max(100, 
+        Math.floor(nic.trafficStats.txBytesPerSecond * (0.8 + Math.random() * 0.4))
+      );
+      
+      // Occasionally update protocol distribution
+      if (Math.random() > 0.7) {
+        nic.protocols.forEach(proto => {
+          const change = Math.floor(Math.random() * 5) - 2;
+          proto.percentage = Math.max(1, Math.min(90, proto.percentage + change));
+        });
+        
+        // Normalize percentages to ensure they sum to 100
+        const totalPercentage = nic.protocols.reduce((sum, p) => sum + p.percentage, 0);
+        nic.protocols.forEach(proto => {
+          proto.percentage = Math.floor((proto.percentage / totalPercentage) * 100);
+        });
+        
+        // Ensure total is exactly 100 by adjusting the largest protocol
+        const sum = nic.protocols.reduce((sum, p) => sum + p.percentage, 0);
+        if (sum !== 100) {
+          const largestProto = nic.protocols.reduce((prev, curr) => 
+            prev.percentage > curr.percentage ? prev : curr);
+          largestProto.percentage += (100 - sum);
+        }
+      }
+    });
+  };
+
   // Update device status and performance data
   const refreshDeviceStatus = () => {
     // Create copies to work with
@@ -262,6 +387,9 @@ export const DeviceProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             newCpuUsage = Math.min(Math.max(device.cpuUsage + (Math.random() * 10 - 5), 5), 90);
             newMemoryUsage = Math.min(Math.max(device.memoryUsage + (Math.random() * 10 - 5), 10), 90);
         }
+        
+        // Update network traffic data for online devices
+        updateNetworkTraffic(device);
         
         // Determine status based on resource usage
         if (newCpuUsage > 75 || newMemoryUsage > 80) {
